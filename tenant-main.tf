@@ -15,24 +15,24 @@ provider "aws" {
 }
 
 resource "aws_vpc" "tenant_vpc" {
-  cidr_block       = "10.0.0.0/16" # !Ref pTenantCIDR
-  instance_tenancy = "default" # !Ref pVPCTenancy
+  cidr_block       = var.tenant_cidr # !Ref pTenantCIDR
+  instance_tenancy = var.vpc_tenancy # !Ref pVPCTenancy
   enable_dns_support = true
   enable_dns_hostnames = true
 
   tags = {
     # Value: !Join
     #     - ' '
-    #     - - !Ref pTenantVPCName
-    #     - !Ref pTenantVPCEnvironment
+    #     - - !Ref pTenantVPCName   tn-vpc
+    #     - !Ref pTenantVPCEnvironment  dev
     #     - 'Tenant VPC'
-    Name = "tenant_vpc"
+    Name = join(" ", [var.tenant_vpc_name, var.tenant_vpc_environment, "Tenant VPC"])
     # !Ref pTenantVPCEnvironment
-    Environment = "poc" 
+    Environment = var.tenant_vpc_environment
   }
 }
 
-# this is not cloudformation template
+# this is not part of cloudformation template, for demo purpose only
 resource "aws_subnet" "tenant_public_subnet" {
   vpc_id     = aws_vpc.tenant_vpc.id
   cidr_block = "10.0.1.0/24"
@@ -50,15 +50,18 @@ resource "aws_route_table" "tenant_route_table" {
     # DestinationCidrBlock: !Ref pTransitVPCCIDR
     # RouteTableId: !Ref rRouteTableMain
     # VpcPeeringConnectionId: !Ref rVPCPeeringConnection
+
+  # routes not defined as there is transit account is not provisioned yet
   route = []
 
+
+  tags = {
     # Value: !Join
     #     - ' '
     #     - - !Ref pTenantVPCName
     #     - !Ref pTenantVPCEnvironment
     #     - 'Tenant VPC Route Table'
-  tags = {
-    Name = "tenant_route_table"
+    Name = join(" ", [var.tenant_vpc_name, var.tenant_vpc_environment, "Tenant VPC Route Table"])
   }
 }
 
