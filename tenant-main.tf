@@ -78,3 +78,11 @@ resource "aws_vpc_endpoint" "tenant_vpc_endpoint" {
 
 }
 
+#Just for test
+# This VPC will not be created
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  create_vpc = false
+  # ... omitted
+}
